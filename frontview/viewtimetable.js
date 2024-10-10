@@ -1,5 +1,6 @@
 const showtimetable = require('express').Router();
 const connection = require('../adminPanel/connection');
+const verifyToken = require('../adminPanel/routes/verifyToken');
 
 
 showtimetable.get("/progdepid", (req, res) => {
@@ -52,7 +53,7 @@ showtimetable.get("/viewtimetable", (req, res) => {
    
 
     const {department_name, program_name, session_name, batch, springFall, year, section_name} = req.query;
-
+    console.log(req.query);
     const sql = `SELECT
         a.alo_id,
         p.program_name,
@@ -101,11 +102,13 @@ showtimetable.get("/viewtimetable", (req, res) => {
         connection.query(sql, (err, results, fields) => {
             if(err)
                 res.send(err)
-            res.send(results)
+            else {
+                res.send(results)
+            }
         })
 });
 
-showtimetable.get("/getteacher", (req, res) => {
+showtimetable.get("/getteacher", verifyToken, (req, res) => {
     const sql = `SELECT teacher_name, d.department_name
     FROM teacher t JOIN department d ON t.department_id = d.department_id `
     connection.query(sql, (err, results, fields) => {
@@ -116,7 +119,7 @@ showtimetable.get("/getteacher", (req, res) => {
         }
     })
 })
-showtimetable.get("/viewteachertable", (req, res) => {
+showtimetable.get("/viewteachertable", verifyToken, (req, res) => {
     const { teacher_name, department_name } = req.query; // Use req.query for GET requests
 
     const sql = `
@@ -152,7 +155,7 @@ showtimetable.get("/viewteachertable", (req, res) => {
         if (err) {
             res.send(err);
         } else {
-            res.send(results);
+            res.json(results);
         }
     });
 });
